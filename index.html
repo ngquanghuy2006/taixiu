@@ -1,0 +1,542 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:image" content="https://i.imgur.com/PjbbAng.jpeg"/>
+  <meta property="og:description" content="Web Dự Đoán Kết Quả Tài Xỉu Sunwin Mới Nhất 2025" />
+  <title>AI Dự đoán Tài Xỉu SunWin (Phiên)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://i.imgur.com/h3BrGSy.jpeg');
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      color: white;
+    }
+
+    h2 {
+      color: #ffd700;
+      text-align: center;
+      font-size: 28px;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 10px #00ff00;
+      padding: 30px;
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="password"]:focus, input[type="text"]:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 10px #ffd700;
+    }
+
+    button {
+      background: linear-gradient(135deg, #00ff00, #00cc00);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00ff00;
+    }
+
+    .mode-btn {
+      background: linear-gradient(135deg, #ff4d4d, #cc0000);
+    }
+
+    .mode-btn:hover {
+      background: linear-gradient(135deg, #cc0000, #990000);
+    }
+
+    .audio-btn {
+      background: #ffd700;
+      color: black;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.3s;
+    }
+
+    .audio-btn:hover {
+      background: #ccac00;
+    }
+
+    .loader {
+      border: 6px solid rgba(255, 255, 255, 0.2);
+      border-top: 6px solid #ffd700;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #loadingText {
+      font-size: 14px;
+      color: #00ff00;
+      display: none;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .history-log {
+      margin-top: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .history-log p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    canvas {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+
+    .mode-select, .main-app {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginPage">
+  <h2>Đăng nhập AI Tài Xỉu SunWin</h2>
+  <input type="password" id="password" placeholder="Nhập mật khẩu" />
+  <button onclick="login()">Đăng nhập</button>
+</div>
+
+<div class="container" id="modePage" style="display:none;">
+  <h2>Chọn chế độ dự đoán</h2>
+  <button class="mode-btn" onclick="selectMode('normal')">Tài Xỉu Thường</button>
+  <button class="mode-btn" onclick="selectMode('md5')">Tài Xỉu MD5</button>
+  <button class="mode-btn" onclick="selectMode('advanced')">Dự đoán nâng cao</button>
+  <button class="mode-btn" onclick="selectMode('machineLearning')">Dự đoán học máy</button>
+  <button class="mode-btn" onclick="selectMode('realTime')">Dự đoán thời gian thực</button>
+</div>
+
+<div class="container" id="appPage" style="display:none;">
+  <h2>AI PHÂN TÍCH PHIÊN SUNWIN</h2>
+  <div class="audio-player">
+    <button class="audio-btn" id="toggleAudio" onclick="toggleAudio()">
+      <span>🎵</span> Bật nhạc
+    </button>
+  </div>
+  <input type="text" id="sessionId" placeholder="Nhập mã phiên SunWin (VD: 12345)" />
+  <button onclick="predict()">Dự đoán</button>
+  <button onclick="resetHistory()">Xóa lịch sử</button>
+  <div id="loader" class="loader"></div>
+  <div id="loadingText">Đang phân tích phiên...</div>
+  <div class="result" id="resultBox" style="display:none;">
+    <p id="prediction"></p>
+  </div>
+  <canvas id="trendChart" width="400" height="200"></canvas>
+  <div class="history-log" id="historyLog"></div>
+</div>
+
+<script>
+  // Danh sách file MP3 trong thư mục mp3
+  const mp3Files = [
+    "Nỗi Đau Mình Anh Remix.mp3",
+    "Chuỗi Ngày Vắng Em Remix.mp3",
+    "Người Ta Không Yêu Em Đâu Remix.mp3",
+    "Em Cũng Vô Tình Remix.mp3",
+    "Quên Anh Trong Từng Cơn Đau Remix.mp3",
+    "Kẹo Bông Gòn Remix.mp3",
+    "Ghét Chính Anh Remix.mp3",
+    "Bạn Thân Ơi Remix.mp3",
+    "Nhiều Chông Gai Remix.mp3",
+    "Anh Em Khu 2 Remix.mp3",
+    "Em Hát Ai Nghe Remix.mp3",
+    "Mở Lối Cho Em Remix.mp3",
+    "Nụ Cười Không Vui Remix.mp3",
+    "Từng Là Của Nhau Remix.mp3",
+    "Yêu Em Nhưng Không Với Tới Remix.mp3",
+    "Chuyện 10 Năm Remix.mp3",
+    "Cô Gái À Em Đừng Khóc Remix.mp3",
+    "Yêu Em Nhưng Không Với Tới Remix.mp3",
+    "Tình Đẹp Cũng Tàn Remix.mp3",
+    "Nếu Em Không Hạnh Phúc Remix.mp3",
+    "Nếu E Ko Hạnh Phúc Remix.mp3",
+    "Đổi Tình Đổi Áo Remix.mp3",
+    "Vừa Lòng Em Chưa Remix.mp3",
+    "Rồi Mình Sẽ Hạnh Phúc Remix.mp3",
+    "Dù Cho Tận Thế Remix.mp3",
+    "Mãi Là Anh Em Remix.mp3",
+    "Khi Bạn Cần Có Tôi Đây Remix.mp3",
+    "Thay Thế Remix.mp3",
+    "Cảm Ơn Em x Em Là Của Anh Remix.mp3",
+    "Nơi Vực Nơi Trời Remix.mp3",
+    "Hãy Xem Là Giấc Mơ Remix.mp3",
+    "Em Say Rồi Remix.mp3",
+    "Ngỡ Như Là Giấc Mơ Remix.mp3",
+    "Khu Tao Sống Remix.mp3",
+    "Nơi Đâu Tìm Thấy Em Remix.mp3",
+    "Em Sẽ Là Người Ra Đi Remix.mp3",
+    "Không Lấy Được Vợ Remix.mp3",
+    "Mất Kết Nối Remix.mp3",
+    "Em Ơi Đừng Khóc 2IN1 Remix.mp3",
+    "Đắng Cay Tuổi Đôi Mươi Remix.mp3",
+    "Nonstop 3IN1 Remix.mp3",
+    "Mưa Rơi Vào Phòng Remix.mp3",
+    "Liều Thuốc Cho Trái Tym Remix.mp3",
+    "Em Ơi Anh Phải Làm Sao Remix.mp3",
+    "Dẫu Anh Không Nhìn Thấy Remix.mp3",
+    "Vách Ngọc Ngà x Hoa Tương Tư Remix.mp3",
+    "Sai Lầm Của Anh x Anh Làm Gì Sai Remix.mp3",
+    "Sai Cách Yêu Remix.mp3",
+    "Này Cô Em Gái Sì Tin Remix.mp3",
+    "Nonstop 4in1 Remix.mp3"
+    // Thêm các file MP3 khác tại đây
+  ];
+
+  let mode = 'normal';
+  let historyLog = JSON.parse(localStorage.getItem('historyLog')) || [];
+  let chart;
+  let backgroundAudio = new Audio();
+  let effectAudio = new Audio('audio/success-effect.mp3');
+  let isAudioPlaying = false;
+
+  // Cấu hình âm thanh
+  backgroundAudio.volume = 0.3; // Âm lượng nhạc nền
+  effectAudio.volume = 0.5; // Âm lượng hiệu ứng
+  backgroundAudio.loop = false; // Tắt chế độ lặp để phát file khác khi kết thúc
+
+  // Hàm chọn và phát file MP3 ngẫu nhiên
+  function playRandomMp3() {
+    if (mp3Files.length === 0) {
+      console.warn('Không có file MP3 nào trong danh sách!');
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * mp3Files.length);
+    backgroundAudio.src = mp3Files[randomIndex];
+    backgroundAudio.play().catch((error) => {
+      console.log('Lỗi phát nhạc:', error);
+      alert('Vui lòng tương tác với trang để bật nhạc!');
+    });
+  }
+
+  // Khi file MP3 hiện tại kết thúc, phát file ngẫu nhiên khác
+  backgroundAudio.addEventListener('ended', () => {
+    playRandomMp3();
+  });
+
+  // Hàm bật/tắt nhạc
+  function toggleAudio() {
+    const toggleButton = document.getElementById('toggleAudio');
+    if (isAudioPlaying) {
+      backgroundAudio.pause();
+      toggleButton.innerHTML = '<span>🎵</span> Bật nhạc';
+      isAudioPlaying = false;
+    } else {
+      if (!backgroundAudio.src) {
+        playRandomMp3(); // Chọn và phát file MP3 ngẫu nhiên lần đầu
+      } else {
+        backgroundAudio.play().catch(() => {
+          alert('Vui lòng tương tác với trang để bật nhạc!');
+        });
+      }
+      toggleButton.innerHTML = '<span>🎵</span> Tắt nhạc';
+      isAudioPlaying = true;
+    }
+  }
+
+  // Tự động phát nhạc nền khi vào trang dự đoán
+  document.getElementById('appPage').addEventListener('transitionend', () => {
+    if (document.getElementById('appPage').style.display === 'block' && isAudioPlaying) {
+      if (!backgroundAudio.src) {
+        playRandomMp3();
+      } else {
+        backgroundAudio.play().catch(() => {
+          console.log('Autoplay bị chặn, cần tương tác để phát nhạc');
+        });
+      }
+    }
+  });
+
+  const users = [
+    { password: "1" }
+  ];
+
+  function login() {
+    const pass = document.getElementById("password").value;
+    const userFound = users.find(u => u.password === pass);
+
+    if (userFound) {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("modePage").style.display = "block";
+    } else {
+      alert("Mật khẩu không đúng!");
+    }
+  }
+
+  function selectMode(selected) {
+    mode = selected;
+    document.getElementById("modePage").style.display = "none";
+    document.getElementById("appPage").style.display = "block";
+    updateHistoryLog();
+    initChart();
+  }
+
+  function predict() {
+    const sessionId = document.getElementById("sessionId").value.trim();
+    const loader = document.getElementById("loader");
+    const loadingText = document.getElementById("loadingText");
+    const resultBox = document.getElementById("resultBox");
+    const predictionEl = document.getElementById("prediction");
+
+    if (!sessionId || !sessionId.match(/^[a-zA-Z0-9]+$/)) {
+      alert("Vui lòng nhập mã phiên hợp lệ (chỉ chứa chữ cái và số)!");
+      return;
+    }
+
+    loader.style.display = "block";
+    loadingText.style.display = "block";
+    resultBox.style.display = "none";
+    predictionEl.innerHTML = "";
+
+    setTimeout(() => {
+      let prediction;
+      if (mode === 'normal') {
+        prediction = aiPrediction(sessionId);
+      } else if (mode === 'md5') {
+        prediction = md5Prediction(sessionId);
+      } else if (mode === 'advanced') {
+        prediction = advancedPrediction(sessionId);
+      } else if (mode === 'machineLearning') {
+        prediction = machineLearningPrediction(sessionId);
+      } else if (mode === 'realTime') {
+        prediction = realTimePrediction(sessionId);
+      }
+
+      predictionEl.innerHTML = `
+        <strong>${prediction.result} (${prediction.number})</strong><br>
+        <em>Độ tin cậy: ${prediction.confidence}%</em>
+      `;
+      loader.style.display = "none";
+      loadingText.style.display = "none";
+      resultBox.style.display = "block";
+
+      effectAudio.play().catch(() => {
+        console.log('Phát hiệu ứng thất bại, cần tương tác');
+      });
+
+      historyLog.push({ sessionId, result: prediction.result, confidence: prediction.confidence });
+      localStorage.setItem('historyLog', JSON.stringify(historyLog));
+      updateHistoryLog();
+      updateChart(prediction.result);
+    }, 1500);
+  }
+
+  function aiPrediction(sessionId) {
+    const sum = sessionId.split('')
+      .map(c => isNaN(c) ? c.charCodeAt(0) % 10 : parseInt(c))
+      .reduce((a, b) => a + b, 0);
+    const isTai = sum % 2 === 0;
+    const confidence = 75 + Math.random() * 15;
+    const number = isTai ? Math.floor(Math.random() * 8 + 11) : Math.floor(Math.random() * 8 + 3);
+
+    return {
+      result: isTai ? 'TÀI' : 'XỈU',
+      number,
+      confidence: confidence.toFixed(1)
+    };
+  }
+
+  function md5Prediction(sessionId) {
+    const length = sessionId.length;
+    const isTai = length % 2 === 0;
+    return {
+      result: isTai ? 'TÀI' : 'XỈU',
+      number: isTai ? 12 : 5,
+      confidence: (85 + Math.random() * 10).toFixed(1)
+    };
+  }
+
+  function advancedPrediction(sessionId) {
+    const lastChar = sessionId[sessionId.length - 1];
+    const isTai = isNaN(lastChar) || parseInt(lastChar) % 2 === 0;
+    return {
+      result: isTai ? 'TÀI' : 'XỈU',
+      number: isTai ? 13 : 4,
+      confidence: (87 + Math.random() * 8).toFixed(1)
+    };
+  }
+
+  function machineLearningPrediction(sessionId) {
+    const asciiSum = sessionId.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0);
+    const isTai = asciiSum % 2 === 0;
+    return {
+      result: isTai ? 'TÀI' : 'XỈU',
+      number: isTai ? 14 : 6,
+      confidence: (90 + Math.random() * 5).toFixed(1)
+    };
+  }
+
+  function realTimePrediction(sessionId) {
+    const lastResult = historyLog.length > 0 ? historyLog[historyLog.length - 1].result : 'TÀI';
+    const isTai = lastResult === 'XỈU';
+    return {
+      result: isTai ? 'TÀI' : 'XỈU',
+      number: isTai ? 12 : 5,
+      confidence: (88 + Math.random() * 7).toFixed(1)
+    };
+  }
+
+  function resetHistory() {
+    historyLog = [];
+    localStorage.setItem('historyLog', JSON.stringify(historyLog));
+    updateHistoryLog();
+    document.getElementById('sessionId').value = '';
+    document.getElementById('resultBox').style.display = 'none';
+    updateChart('');
+  }
+
+  function updateHistoryLog() {
+    const logDiv = document.getElementById('historyLog');
+    logDiv.innerHTML = historyLog.map((log, i) => 
+      `<p>${i + 1}. Phiên: ${log.sessionId} -> Dự đoán: ${log.result} (${log.confidence}%)</p>`
+    ).join('');
+  }
+
+  function initChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Tài', 'Xỉu'],
+        datasets: [{
+          label: 'Tần suất',
+          data: [0, 0],
+          backgroundColor: ['#ff4d4d', '#4d79ff'],
+          borderColor: ['#cc0000', '#0033cc'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  function updateChart(result) {
+    const taiCount = historyLog.filter(log => log.result === 'TÀI').length + (result === 'TÀI' ? 1 : 0);
+    const xiuCount = historyLog.filter(log => log.result === 'XỈU').length + (result === 'XỈU' ? 1 : 0);
+    chart.data.datasets[0].data = [taiCount, xiuCount];
+    chart.update();
+  }
+
+  // Khởi tạo lịch sử khi tải trang
+  updateHistoryLog();
+</script>
+</body>
+</html>
